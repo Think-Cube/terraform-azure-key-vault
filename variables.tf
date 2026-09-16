@@ -1,16 +1,6 @@
-variable "environment" {
-  description = "Var used for backend container name key"
-  type        = string
-  default     = "dev"
-}
 variable "default_tags" {
   description = "A mapping of tags to assign to the resource."
   type        = map(any)
-}
-variable "region" {
-  description = "Region in which resources are deployed"
-  type        = string
-  default     = "weu"
 }
 variable "resource_group_location" {
   description = "The location/region where the virtual network is created. Changing this forces a new resource to be created."
@@ -58,10 +48,9 @@ variable "enabled_for_template_deployment" {
   default     = false
   description = "Boolean flag to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
 }
-variable "enable_rbac_authorization" {
+variable "rbac_authorization_enabled" {
   type        = bool
-  default     = false
-  description = "Boolean flag to specify whether Azure Key Vault uses Role Based Access Control (RBAC) for authorization of data actions."
+  description = "Boolean flag to specify whether Azure Key Vault uses Role Based Access Control (RBAC) for authorization of data actions. Required in azurerm 5.x."
 }
 variable "access_policies" {
   type        = list(map(string))
@@ -80,12 +69,6 @@ variable "secrets" {
   default     = []
   description = "List of objects that represent the configuration of each secrect."
   # secrets = [{ name = "", value = "", content_type = "", not_before_date = "", expiration_date = ""}]
-}
-variable "contacts" {
-  type        = list(map(string))
-  default     = []
-  description = "List of objects that represent each contact."
-  # contacts = [{ email = "", name = "", phone = "" }]
 }
 variable "network_acls" {
   description = "A list of network ACLs."

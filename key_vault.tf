@@ -11,7 +11,7 @@ resource "azurerm_key_vault" "main" {
   enabled_for_deployment          = var.enabled_for_deployment
   enabled_for_disk_encryption     = var.enabled_for_disk_encryption
   enabled_for_template_deployment = var.enabled_for_template_deployment
-  enable_rbac_authorization       = var.enable_rbac_authorization
+  rbac_authorization_enabled      = var.rbac_authorization_enabled
   tags                            = var.default_tags
 
   dynamic "access_policy" {
@@ -24,15 +24,6 @@ resource "azurerm_key_vault" "main" {
       secret_permissions      = lookup(access_policy.value, "secret_permissions", "") == "" ? null : split(",", access_policy.value.secret_permissions)
       certificate_permissions = lookup(access_policy.value, "certificate_permissions", "") == "" ? null : split(",", access_policy.value.certificate_permissions)
       storage_permissions     = lookup(access_policy.value, "storage_permissions", "") == "" ? null : split(",", access_policy.value.storage_permissions)
-    }
-  }
-
-  dynamic "contact" {
-    for_each = var.contacts
-    content {
-      email = contact.value.email
-      name  = lookup(contact.value, "name", null)
-      phone = lookup(contact.value, "phone", null)
     }
   }
 
