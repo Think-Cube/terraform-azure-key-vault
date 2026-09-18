@@ -1,81 +1,61 @@
-# Terraform Azure Key Vault Module – Basic Example
+﻿# Example: Basic -- Azure Key Vault
 
-This example demonstrates a **basic deployment** of Azure Key Vault with a few secrets.
+Deploys an Azure Key Vault with RBAC authorization enabled (required in azurerm v5).
 
-## Description
+```hcl
+data "azurerm_client_config" "current" {}
 
-- Creates a Key Vault with basic access configuration and IP-based network ACLs.
-- Adds several secrets (e.g., application and database credentials).
-- Suitable for **development or test environments** where simple secret storage is required.
+module "key_vault" {
+  source = "github.com/Think-Cube/terraform-azure-key-vault?ref=v1.0.0"
 
-## Features
+  key_vault_name          = "kv-example-001"
+  resource_group_name     = "rg-example"
+  resource_group_location = "West Europe"
+  tenant_id               = data.azurerm_client_config.current.tenant_id
+  sku_name                = "standard"
 
-- Standard SKU
-- Access policy–based authorization
-- Configurable soft delete and purge protection
-- Contact information for notifications
-- IP rules allowing restricted access
-
-```yml
-module "key_vault_basic" {
-  source = "./terraform-azure-key-vault"
-
-  resource_group_name = "rg-example"
-  key_vault_name      = "kv-dev-app"
-  sku_name            = "standard"
-  region              = "westeurope"
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  environment         = "dev"
-
-  purge_protection_enabled        = false
-  enabled_for_deployment          = true
-  enabled_for_disk_encryption     = false
-  enabled_for_template_deployment = false
-  enable_rbac_authorization       = false
-  soft_delete_retention_days      = 7
-
-  access_policies = [
-    {
-      object_id               = "00000000-0000-0000-0000-000000000000"
-      key_permissions         = "get,list"
-      secret_permissions      = "get,list,set"
-      certificate_permissions = ""
-      storage_permissions     = ""
-    }
-  ]
-
-  contacts = [
-    {
-      email = "admin@example.com"
-      name  = "Admin"
-    }
-  ]
-
-  network_acls = [
-    {
-      bypass         = "AzureServices"
-      default_action = "Allow"
-      ip_rules       = ["192.168.0.0/24"]
-    }
-  ]
-
-  keys = []
-
-  secrets = [
-    {
-      name  = "app-secret"
-      value = "supersecretvalue"
-    },
-    {
-      name  = "db-password"
-      value = "StrongP@ssw0rd!"
-    }
-  ]
+  rbac_authorization_enabled = true
+  purge_protection_enabled   = false
+  soft_delete_retention_days = 7
 
   default_tags = {
     environment = "dev"
-    project     = "example"
+    managed_by  = "terraform"
   }
 }
-
 ```
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 5.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_key_vault"></a> [key\_vault](#module\_key\_vault) | github.com/Think-Cube/terraform-azure-key-vault | v1.0.0 |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->

@@ -1,90 +1,70 @@
-# Terraform Azure Key Vault Module – Advanced Example
+﻿# Example: Advanced -- Azure Key Vault
 
-This example demonstrates a **production-ready deployment** of Azure Key Vault with keys, secrets, and RBAC authorization.
+Deploys a premium Key Vault with network ACLs, purge protection, disk encryption support and a pre-seeded secret.
 
-## Description
+```hcl
+data "azurerm_client_config" "current" {}
 
-- Creates a Key Vault configured with **premium SKU** and **RBAC-based access control**.
-- Adds both secrets and encryption keys for secure application use.
-- Restricts access to specific **virtual network subnets**.
-- Enables **purge protection** and extended **soft delete retention**.
+module "key_vault" {
+  source = "github.com/Think-Cube/terraform-azure-key-vault?ref=v1.0.0"
 
-## Features
+  key_vault_name          = "kv-example-adv-001"
+  resource_group_name     = "rg-example"
+  resource_group_location = "West Europe"
+  tenant_id               = data.azurerm_client_config.current.tenant_id
+  sku_name                = "premium"
 
-- Premium Key Vault SKU
-- RBAC authorization (no manual access policies)
-- Network ACLs restricted to private subnets
-- Managed encryption keys with custom operations
-- Secure configuration for production workloads
-
-```yml
-module "key_vault_advanced" {
-  source                          = "./terraform-azure-key-vault"
-  resource_group_name             = "rg-prod"
-  key_vault_name                  = "kv-prod-app"
-  sku_name                        = "premium"
-  region                          = "westeurope"
-  tenant_id                       = data.azurerm_client_config.current.tenant_id
-  environment                     = "prod"
+  rbac_authorization_enabled      = true
   purge_protection_enabled        = true
-  enabled_for_deployment          = true
-  enabled_for_disk_encryption     = true
-  enabled_for_template_deployment = true
-  enable_rbac_authorization       = true
   soft_delete_retention_days      = 90
-
-  access_policies = [
-    {
-      object_id               = "11111111-1111-1111-1111-111111111111"
-      key_permissions         = "get,list"
-      secret_permissions      = "get,list,set"
-      certificate_permissions = "get,list"
-      storage_permissions     = ""
-    },
-    {
-      object_id               = "22222222-2222-2222-2222-222222222222"
-      key_permissions         = "get"
-      secret_permissions      = "get"
-      certificate_permissions = ""
-      storage_permissions     = ""
-    }
-  ]
-
-  contacts = [
-    {
-      email = "security@example.com"
-      name  = "Security Team"
-    }
-  ]
+  enabled_for_disk_encryption     = true
 
   network_acls = [
     {
-      bypass                     = "AzureServices"
-      default_action             = "Deny"
-      ip_rules                   = []
-      virtual_network_subnet_ids = ["/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-prod/providers/Microsoft.Network/virtualNetworks/vnet-prod/subnets/app-subnet"]
-    }
-  ]
-
-  keys = [
-    {
-      name     = "encryption-key"
-      key_type = "RSA"
-      key_size = 2048
-      key_opts = "encrypt,decrypt,sign,verify"
-    }
-  ]
-
-  secrets = [
-    {
-      name  = "connection-string"
-      value = "Server=tcp:db.example.net,1433;Database=appdb;"
+      bypass         = "AzureServices"
+      default_action = "Deny"
+      ip_rules       = ["203.0.113.0/24"]
     }
   ]
 
   default_tags = {
     environment = "prod"
-    project     = "secure-app"
+    managed_by  = "terraform"
   }
 }
 ```
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 5.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_key_vault"></a> [key\_vault](#module\_key\_vault) | github.com/Think-Cube/terraform-azure-key-vault | v1.0.0 |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->
